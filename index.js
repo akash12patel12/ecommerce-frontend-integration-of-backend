@@ -66,6 +66,9 @@ document.addEventListener('click',(e)=>{
     }
 })
 
+
+
+
 function showProductsInCart(listofproducts){
     cart_items.innerHTML = "";
     listofproducts.forEach(product => {
