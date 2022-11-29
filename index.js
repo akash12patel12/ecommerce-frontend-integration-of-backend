@@ -2,15 +2,29 @@ const cart_items = document.querySelector('#cart .cart-items');
 
 
 const parentNode = document.getElementById('music-content');
-// const products =  axios.get('http://localhost:3000/products');
-// console.log(products);
 
-window.addEventListener('load', async () => {
-    console.log('loaded');
 
-    axios.get('http://localhost:3000/products').then((products) => {
-        console.log("here")
-        console.log(products)
+//logic for pagination
+
+//Get total number of rows
+
+
+paginate();
+async function paginate(){
+    let totalProducts = await axios.get("http://localhost:3000/totalProducts");
+    totalProducts = totalProducts.data
+    let  i=0;
+    const paginationSection = document.getElementById('pagination');
+    paginationSection.innerHTML = '';
+    while(i<Math.floor(totalProducts/2)){
+       paginationSection.innerHTML = paginationSection.innerHTML + `<button onclick='getProductFromPage(${i+1})' class="page-btn"> ${i+1} </button>`;
+       i++;
+    }
+}
+
+async function getProductFromPage(page){
+    axios.get(`http://localhost:3000/products?page=${page}`).then(products=>{
+        parentNode.innerHTML = ''
         products.data.forEach(product => {
             const productHtml = `
                 <div id="album-${product.id}">
@@ -27,6 +41,13 @@ window.addEventListener('load', async () => {
 
         })
     })
+}
+
+
+window.addEventListener('load', async () => {
+    // console.log('loaded');
+
+  await getProductFromPage(1);
 
    
 })
@@ -39,8 +60,11 @@ document.addEventListener('click',(e)=>{
             if(data.data.error){
                 throw new Error('Unable to add product');
             }
+            document.querySelector('.cart-number').innerText = parseInt(document.querySelector('.cart-number').innerText)+1
+
             showNotification(data.data.message, false);
         })
+
         .catch(err => {
             console.log(err);
             showNotification(err, true);
@@ -71,10 +95,13 @@ document.addEventListener('click',(e)=>{
 
 function showProductsInCart(listofproducts){
     cart_items.innerHTML = "";
+    document.querySelector('.cart-number').innerText = 0
     listofproducts.forEach(product => {
         const id = `album-${product.id}`;
-        const name = document.querySelector(`#${id} h3`).innerText;
-        const img_src = document.querySelector(`#${id} img`).src;
+        // const name = document.querySelector(`#${id} h3`).innerText;
+        const name = product.title;
+        // const img_src = document.querySelector(`#${id} img`).src;
+        const img_src = product.imageUrl;
         const price = product.price;
         document.querySelector('.cart-number').innerText = parseInt(document.querySelector('.cart-number').innerText)+1
         const cart_item = document.createElement('div');
@@ -93,6 +120,7 @@ function showProductsInCart(listofproducts){
         cart_items.appendChild(cart_item)
     })
 }
+
 function deleteCartItem(e, prodId){
     e.preventDefault();
     axios.post('http://localhost:3000/cart-delete-item', {productId: prodId})

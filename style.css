@@ -439,3 +439,18 @@ header ul a{
     border-radius:7px;
     padding:5px;
 }
+
+.page-btn {
+    margin: 8px 8px;
+    padding: 10px;
+    font-size: 22px;
+   border: 1px solid #0eabdf;
+   margin-bottom: 25px;
+
+}
+
+#pagination {
+    display: flex;
+    justify-content: center;
+    
+}
